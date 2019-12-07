@@ -15,25 +15,21 @@ func main() {
 		program = append(program, toInt(value))
 	}
 
-	{
-		fmt.Println("--- Part One ---")
-		result, fault := emulate(program, 12, 02)
-		if fault {
-			panic("unexpected fault")
-		}
-		fmt.Println(result)
+	fmt.Println("--- Part One ---")
+	result, fault := emulate(program, 12, 02)
+	if fault {
+		panic("unexpected fault")
 	}
+	fmt.Println(result)
 
-	{
-		fmt.Println("--- Part Two ---")
-	loop:
-		for noun := 0; noun < 100; noun++ {
-			for verb := 0; verb < 100; verb++ {
-				result, _ := emulate(program, noun, verb)
-				if result == 19690720 {
-					fmt.Printf("%02d%02d\n", noun, verb)
-					break loop
-				}
+	fmt.Println("--- Part Two ---")
+loop:
+	for noun := 0; noun < 100; noun++ {
+		for verb := 0; verb < 100; verb++ {
+			result, _ := emulate(program, noun, verb)
+			if result == 19690720 {
+				fmt.Printf("%02d%02d\n", noun, verb)
+				break loop
 			}
 		}
 	}
