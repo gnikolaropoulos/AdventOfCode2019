@@ -23,15 +23,12 @@ func main() {
 		}
 	}
 
-	{
-		fmt.Println("--- Part One ---")
-		fmt.Println(total)
-	}
+	fmt.Println("--- Part One ---")
+	fmt.Println(total)
 
-	{
-		fmt.Println("--- Part Two ---")
-		fmt.Println(totalRecursive)
-	}
+	fmt.Println("--- Part Two ---")
+	fmt.Println(totalRecursive)
+
 }
 
 func readNumbers(filename string) []int {

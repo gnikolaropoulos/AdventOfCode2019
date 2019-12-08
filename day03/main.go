@@ -56,15 +56,11 @@ func main() {
 		}
 	}
 
-	{
-		fmt.Println("--- Part One ---")
-		fmt.Println(closestManhatten)
-	}
-
-	{
-		fmt.Println("--- Part Two ---")
-		fmt.Println(closestSteps)
-	}
+	fmt.Println("--- Part One ---")
+	fmt.Println(closestManhatten)
+	
+	fmt.Println("--- Part Two ---")
+	fmt.Println(closestSteps)
 }
 
 type Vector2 struct {

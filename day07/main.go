@@ -201,6 +201,7 @@ func allPermutations(values []int) (result [][]int) {
 		result = append(result, values)
 		return
 	}
+
 	for i, current := range values {
 		others := make([]int, 0, len(values)-1)
 		others = append(others, values[:i]...)
@@ -209,6 +210,7 @@ func allPermutations(values []int) (result [][]int) {
 			result = append(result, append(route, current))
 		}
 	}
+
 	return
 }
 
@@ -216,5 +218,6 @@ func max(x, y int) int {
 	if y > x {
 		return y
 	}
+
 	return x
 }

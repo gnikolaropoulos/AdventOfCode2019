@@ -16,58 +16,53 @@ func main() {
 		parts := strings.Split(line, ")")
 		orbits[parts[1]] = parts[0]
 	}
+	fmt.Println("--- Part One ---")
 
-	{
-		fmt.Println("--- Part One ---")
-
-		total := 0
-		for object := range orbits {
-			for {
-				parent, ok := orbits[object]
-				if !ok {
-					break
-				}
-				object = parent
-				total++
-			}
-		}
-
-		fmt.Println(total)
-	}
-
-	{
-		fmt.Println("--- Part Two ---")
-
-		path := make(map[string]int)
-
-		object, distance := orbits["YOU"], 0
+	total := 0
+	for object := range orbits {
 		for {
-			path[object] = distance
 			parent, ok := orbits[object]
 			if !ok {
 				break
 			}
 			object = parent
-			distance++
+			total++
 		}
-
-		object, distance = orbits["SAN"], 0
-		for {
-			pathDistance, ok := path[object]
-			if ok {
-				distance += pathDistance
-				break
-			}
-			parent, ok := orbits[object]
-			if !ok {
-				panic("YOU and SAN are not connected")
-			}
-			object = parent
-			distance++
-		}
-
-		fmt.Println(distance)
 	}
+
+	fmt.Println(total)
+
+	fmt.Println("--- Part Two ---")
+
+	path := make(map[string]int)
+
+	object, distance := orbits["YOU"], 0
+	for {
+		path[object] = distance
+		parent, ok := orbits[object]
+		if !ok {
+			break
+		}
+		object = parent
+		distance++
+	}
+
+	object, distance = orbits["SAN"], 0
+	for {
+		pathDistance, ok := path[object]
+		if ok {
+			distance += pathDistance
+			break
+		}
+		parent, ok := orbits[object]
+		if !ok {
+			panic("YOU and SAN are not connected")
+		}
+		object = parent
+		distance++
+	}
+
+	fmt.Println(distance)
 }
 
 func readLines(filename string) []string {

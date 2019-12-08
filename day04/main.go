@@ -46,15 +46,11 @@ func main() {
 		}
 	}
 
-	{
-		fmt.Println("--- Part One ---")
-		fmt.Println(total)
-	}
+	fmt.Println("--- Part One ---")
+	fmt.Println(total)
 
-	{
-		fmt.Println("--- Part Two ---")
-		fmt.Println(isolatedTotal)
-	}
+	fmt.Println("--- Part Two ---")
+	fmt.Println(isolatedTotal)
 }
 
 func readFile(filename string) string {

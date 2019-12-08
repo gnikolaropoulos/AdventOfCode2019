@@ -58,6 +58,7 @@ func emulate(program []int, input []int) (output []int) {
 			z := memory[ip+3]
 			memory[z] = x + y
 			ip += 4
+
 		case 2:
 			if a != 0 {
 				panic("Instruction writes to an immediate mode")
@@ -68,15 +69,18 @@ func emulate(program []int, input []int) (output []int) {
 			z := memory[ip+3]
 			memory[z] = x * y
 			ip += 4
+
 		case 3:
 			x := memory[ip+1]
 			memory[x] = input[0]
 			input = input[1:]
 			ip += 2
+
 		case 4:
 			x := fetchValue(c, memory, ip+1)
 			output = append(output, x)
 			ip += 2
+
 		case 5: // JUMP IF TRUE
 			x := fetchValue(c, memory, ip+1)
 			y := fetchValue(b, memory, ip+2)
@@ -104,6 +108,7 @@ func emulate(program []int, input []int) (output []int) {
 			} else {
 				memory[z] = 0
 			}
+
 			ip += 4
 
 		case 8: // EQUAL
@@ -115,6 +120,7 @@ func emulate(program []int, input []int) (output []int) {
 			} else {
 				memory[z] = 0
 			}
+			
 			ip += 4
 
 		case 99: // HALT
