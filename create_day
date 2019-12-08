@@ -10,7 +10,6 @@ if [ ! -d .git ]; then
 fi
 
 name="$(printf "day%02d" "$1")"
-#cargo new --bin "$name"
 mkdir "$name"
 
 touch "$name"/input.txt
