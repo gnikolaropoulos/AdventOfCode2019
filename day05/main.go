@@ -35,7 +35,6 @@ func main() {
 }
 
 func emulate(program []int, input []int) (output []int) {
-	// Copy the program into memory, so that we do not modify the original.
 	memory := make([]int, len(program))
 	copy(memory, program)
 

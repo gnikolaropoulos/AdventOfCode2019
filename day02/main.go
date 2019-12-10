@@ -36,11 +36,8 @@ loop:
 }
 
 func emulate(program []int, noun, verb int) (result int, fault bool) {
-	// Copy the program into memory, so that we do not modify the original.
 	memory := make([]int, len(program))
 	copy(memory, program)
-
-	// Copy inputs into memory.
 	memory[1], memory[2] = noun, verb
 
 	ip := 0

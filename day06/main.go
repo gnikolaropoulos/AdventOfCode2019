@@ -16,6 +16,7 @@ func main() {
 		parts := strings.Split(line, ")")
 		orbits[parts[1]] = parts[0]
 	}
+	
 	fmt.Println("--- Part One ---")
 
 	total := 0

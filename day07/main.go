@@ -73,7 +73,6 @@ func emulateAmplifiers(program []int, phaseSettings []int) int {
 }
 
 func emulate(program []int, input <-chan int, output chan<- int, halt chan<- bool) {
-	// Copy the program into memory, so that we do not modify the original.
 	memory := make([]int, len(program))
 	copy(memory, program)
 
@@ -118,7 +117,7 @@ func emulate(program []int, input <-chan int, output chan<- int, halt chan<- boo
 			output <- x
 			ip += 2
 
-		case 5: // JUMP IF TRUE
+		case 5:
 			x := fetchValue(c, memory, ip+1)
 			y := fetchValue(b, memory, ip+2)
 			if x != 0 {
@@ -127,7 +126,7 @@ func emulate(program []int, input <-chan int, output chan<- int, halt chan<- boo
 				ip += 3
 			}
 
-		case 6: // JUMP IF FALSE
+		case 6: 
 			x := fetchValue(c, memory, ip+1)
 			y := fetchValue(b, memory, ip+2)
 			if x == 0 {
@@ -136,7 +135,7 @@ func emulate(program []int, input <-chan int, output chan<- int, halt chan<- boo
 				ip += 3
 			}
 
-		case 7: // LESS THAN
+		case 7:
 			x := fetchValue(c, memory, ip+1)
 			y := fetchValue(b, memory, ip+2)
 			z := memory[ip+3]
@@ -148,7 +147,7 @@ func emulate(program []int, input <-chan int, output chan<- int, halt chan<- boo
 
 			ip += 4
 
-		case 8: // EQUAL
+		case 8:
 			x := fetchValue(c, memory, ip+1)
 			y := fetchValue(b, memory, ip+2)
 			z := memory[ip+3]
@@ -160,7 +159,7 @@ func emulate(program []int, input <-chan int, output chan<- int, halt chan<- boo
 
 			ip += 4
 
-		case 99: // HALT
+		case 99:
 			halt <- true
 			return
 

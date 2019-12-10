@@ -35,8 +35,9 @@ func main() {
 }
 
 func emulate(program []int64, input []int64) (output []int64) {
-	// Copy the program into memory, so that we do not modify the original.
-	memory := make([]int64, len(program))
+	// We will get pointers as for write operators we might get relative mode
+	// so z=memory(ip+3) is not correct anymore
+	memory := make([]int64, 3000)
 	copy(memory, program)
 
 	var ip, relativeBase int64
@@ -50,33 +51,33 @@ func emulate(program []int64, input []int64) (output []int64) {
 
 		switch opcode {
 		case 1: // ADD
-			x := fetchValue(c, &memory, ip+1, relativeBase)
-			y := fetchValue(b, &memory, ip+2, relativeBase)
-			z := fetchValue(a, &memory, ip+3, relativeBase)
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			z := fetchPointerToMemory(a, &memory, ip+3, relativeBase)
 			*z = *x + *y
 			ip += 4
 
 		case 2: // MULTIPLY
-			x := fetchValue(c, &memory, ip+1, relativeBase)
-			y := fetchValue(b, &memory, ip+2, relativeBase)
-			z := fetchValue(a, &memory, ip+3, relativeBase)
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			z := fetchPointerToMemory(a, &memory, ip+3, relativeBase)
 			*z = *x * *y
 			ip += 4
 
 		case 3: // INPUT
-			x := fetchValue(c, &memory, ip+1, relativeBase)
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
 			*x = input[0]
 			input = input[1:]
 			ip += 2
 
 		case 4: // OUTPUT
-			x := fetchValue(c, &memory, ip+1, relativeBase)
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
 			output = append(output, *x)
 			ip += 2
 
 		case 5: // JUMP IF TRUE
-			x := fetchValue(c, &memory, ip+1, relativeBase)
-			y := fetchValue(b, &memory, ip+2, relativeBase)
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
 			if *x != 0 {
 				ip = *y
 			} else {
@@ -84,8 +85,8 @@ func emulate(program []int64, input []int64) (output []int64) {
 			}
 
 		case 6: // JUMP IF FALSE
-			x := fetchValue(c, &memory, ip+1, relativeBase)
-			y := fetchValue(b, &memory, ip+2, relativeBase)
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
 			if *x == 0 {
 				ip = *y
 			} else {
@@ -93,9 +94,9 @@ func emulate(program []int64, input []int64) (output []int64) {
 			}
 
 		case 7: // LESS THAN
-			x := fetchValue(c, &memory, ip+1, relativeBase)
-			y := fetchValue(b, &memory, ip+2, relativeBase)
-			z := fetchValue(a, &memory, ip+3, relativeBase)
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			z := fetchPointerToMemory(a, &memory, ip+3, relativeBase)
 
 			if *x < *y {
 				*z = 1
@@ -106,9 +107,9 @@ func emulate(program []int64, input []int64) (output []int64) {
 			ip += 4
 
 		case 8: // EQUAL
-			x := fetchValue(c, &memory, ip+1, relativeBase)
-			y := fetchValue(b, &memory, ip+2, relativeBase)
-			z := fetchValue(a, &memory, ip+3, relativeBase)
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			z := fetchPointerToMemory(a, &memory, ip+3, relativeBase)
 			if *x == *y {
 				*z = 1
 			} else {
@@ -118,7 +119,7 @@ func emulate(program []int64, input []int64) (output []int64) {
 			ip += 4
 
 		case 9: // ADJUST RELATIVE BASE
-			x := fetchValue(c, &memory, ip+1, relativeBase)
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
 			relativeBase += *x
 			ip += 2
 
@@ -148,25 +149,18 @@ func check(err error) {
 	}
 }
 
-func fetchValue(mode int64, memory *[]int64, position int64, relativeBase int64) *int64 {
+func fetchPointerToMemory(mode int64, memory *[]int64, position int64, relativeBase int64) *int64 {
 
 	switch mode {
 	case 0:
 		index := (*memory)[position]
-		return fetchDataFromMemory(memory, index)
+		return &(*memory)[index]
 	case 1:
-		return fetchDataFromMemory(memory, position)
+		return &(*memory)[position]
 	case 2:
 		index := (*memory)[position] + relativeBase
-		return fetchDataFromMemory(memory, index)
+		return &(*memory)[index]
 	default:
 		panic("error in mode")
 	}
-}
-
-func fetchDataFromMemory(memory *[]int64, index int64) *int64 {
-	for int64(len(*memory)) <= index {
-		*memory = append(*memory, 0)
-	}
-	return &(*memory)[index]
 }
