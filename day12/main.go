@@ -25,82 +25,80 @@ func main() {
 			pos: Vector3{x, y, z},
 			vel: Vector3{0, 0, 0},
 		}
+
 		input = append(input, moon)
 	}
 
-	{
-		fmt.Println("--- Part One ---")
+	fmt.Println("--- Part One ---")
 
-		moons := make([]Moon, len(input))
-		copy(moons, input)
+	moons := make([]Moon, len(input))
+	copy(moons, input)
 
-		for step := 0; step < 1000; step++ {
-			simulate(moons)
-		}
-
-		totalEnergy := 0
-		for _, moon := range moons {
-			potentialEnergy := moon.pos.ManhattenLength()
-			kineticEnergy := moon.vel.ManhattenLength()
-			totalEnergy += potentialEnergy * kineticEnergy
-		}
-		fmt.Println(totalEnergy)
+	for step := 0; step < 1000; step++ {
+		simulate(moons)
 	}
 
-	{
-		fmt.Println("--- Part Two ---")
+	totalEnergy := 0
+	for _, moon := range moons {
+		potentialEnergy := moon.pos.ManhattenLength()
+		kineticEnergy := moon.vel.ManhattenLength()
+		totalEnergy += potentialEnergy * kineticEnergy
+	}
 
-		moons := make([]Moon, len(input))
-		copy(moons, input)
+	fmt.Println(totalEnergy)
 
-		xSteps, ySteps, zSteps := 0, 0, 0
-		for steps := 1; xSteps == 0 || ySteps == 0 || zSteps == 0; steps++ {
-			simulate(moons)
+	fmt.Println("--- Part Two ---")
+	moons = make([]Moon, len(input))
+	copy(moons, input)
 
-			if xSteps == 0 {
-				found := true
-				for i, moon := range moons {
-					if moon.pos.x != input[i].pos.x || moon.vel.x != input[i].vel.x {
-						found = false
-						break
-					}
-				}
-				if found {
-					xSteps = steps
+	xSteps, ySteps, zSteps := 0, 0, 0
+	for steps := 1; xSteps == 0 || ySteps == 0 || zSteps == 0; steps++ {
+		simulate(moons)
+
+		if xSteps == 0 {
+			found := true
+			for i, moon := range moons {
+				if moon.pos.X != input[i].pos.X || moon.vel.X != input[i].vel.X {
+					found = false
+					break
 				}
 			}
-
-			if ySteps == 0 {
-				found := true
-				for i, moon := range moons {
-					if moon.pos.y != input[i].pos.y || moon.vel.y != input[i].vel.y {
-						found = false
-						break
-					}
-				}
-				if found {
-					ySteps = steps
-				}
-			}
-
-			if zSteps == 0 {
-				found := true
-				for i, moon := range moons {
-					if moon.pos.z != input[i].pos.z || moon.vel.z != input[i].vel.z {
-						found = false
-						break
-					}
-				}
-				if found {
-					zSteps = steps
-				}
+			if found {
+				xSteps = steps
 			}
 		}
 
-		result := LCM(xSteps, ySteps)
-		result = LCM(result, zSteps)
-		fmt.Println(result)
+		if ySteps == 0 {
+			found := true
+			for i, moon := range moons {
+				if moon.pos.Y != input[i].pos.Y || moon.vel.Y != input[i].vel.Y {
+					found = false
+					break
+				}
+			}
+			if found {
+				ySteps = steps
+			}
+		}
+
+		if zSteps == 0 {
+			found := true
+			for i, moon := range moons {
+				if moon.pos.Z != input[i].pos.Z || moon.vel.Z != input[i].vel.Z {
+					found = false
+					break
+				}
+			}
+			if found {
+				zSteps = steps
+			}
+		}
 	}
+
+	tempResult := LCM(xSteps, ySteps)
+	result := LCM(tempResult, zSteps)
+	fmt.Println(result)
+	
 }
 
 func simulate(moons []Moon) {
@@ -110,46 +108,46 @@ func simulate(moons []Moon) {
 				continue
 			}
 
-			a.vel = a.vel.Plus(b.pos.Minus(a.pos).Sign())
+			a.vel = a.vel.Add(b.pos.Sub(a.pos).Sign())
 		}
 		moons[ai] = a
 	}
 
 	for index, moon := range moons {
-		moons[index].pos = moon.pos.Plus(moon.vel)
+		moons[index].pos = moon.pos.Add(moon.vel)
 	}
 }
 
 type Vector3 struct {
-	x, y, z int
+	X, Y, Z int
 }
 
-func (v Vector3) Plus(other Vector3) Vector3 {
+func (v Vector3) Add(ov Vector3) Vector3 {
 	return Vector3{
-		x: v.x + other.x,
-		y: v.y + other.y,
-		z: v.z + other.z,
+		v.X + ov.X,
+		v.Y + ov.Y,
+		v.Z + ov.Z,
 	}
 }
 
-func (v Vector3) Minus(other Vector3) Vector3 {
+func (v Vector3) Sub(ov Vector3) Vector3 {
 	return Vector3{
-		x: v.x - other.x,
-		y: v.y - other.y,
-		z: v.z - other.z,
+		v.X - ov.X,
+		v.Y - ov.Y,
+		v.Z - ov.Z,
 	}
 }
 
 func (v Vector3) Sign() Vector3 {
 	return Vector3{
-		x: sign(v.x),
-		y: sign(v.y),
-		z: sign(v.z),
+		sign(v.X),
+		sign(v.Y),
+		sign(v.Z),
 	}
 }
 
 func (v Vector3) ManhattenLength() int {
-	return abs(v.x) + abs(v.y) + abs(v.z)
+	return abs(v.X) + abs(v.Y) + abs(v.Z)
 }
 
 func readLines(filename string) []string {
@@ -163,6 +161,7 @@ func readLines(filename string) []string {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
+
 	return lines
 }
 
@@ -182,6 +181,7 @@ func abs(x int) int {
 	if x < 0 {
 		return -x
 	}
+
 	return x
 }
 
@@ -189,9 +189,11 @@ func sign(x int) int {
 	if x > 0 {
 		return 1
 	}
+
 	if x < 0 {
 		return -1
 	}
+
 	return 0
 }
 
