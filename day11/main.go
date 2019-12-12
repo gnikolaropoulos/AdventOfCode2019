@@ -15,32 +15,29 @@ func main() {
 		program = append(program, toInt64(value))
 	}
 
-	{
-		fmt.Println("--- Part One ---")
-		fmt.Println(len(emulateEmergencyHullPaintingRobot(program, 0)))
+	
+	fmt.Println("--- Part One ---")
+	fmt.Println(len(emulateEmergencyHullPaintingRobot(program, 0)))
+
+	fmt.Println("--- Part Two ---")
+
+	grid := emulateEmergencyHullPaintingRobot(program, 1)
+
+	var min, max Vector2
+	for pos := range grid {
+		min = min.Min(pos)
+		max = max.Max(pos)
 	}
 
-	{
-		fmt.Println("--- Part Two ---")
-
-		grid := emulateEmergencyHullPaintingRobot(program, 1)
-
-		var min, max Vector2
-		for pos := range grid {
-			min = min.Min(pos)
-			max = max.Max(pos)
-		}
-
-		for y := min.y; y <= max.y; y++ {
-			for x := min.x; x <= max.x; x++ {
-				if grid[Vector2{x, y}] == 1 {
-					fmt.Print("█")
-				} else {
-					fmt.Print(" ")
-				}
+	for y := min.Y; y <= max.Y; y++ {
+		for x := min.X; x <= max.X; x++ {
+			if grid[Vector2{x, y}] == 1 {
+				fmt.Print("")
+			} else {
+				fmt.Print(" ")
 			}
-			fmt.Println()
 		}
+		fmt.Println()
 	}
 }
 
@@ -94,7 +91,7 @@ func emulateEmergencyHullPaintingRobot(program []int64, initialPanel int64) map[
 				}
 			}
 
-			pos = pos.Plus(dir)
+			pos = pos.Add(dir)
 
 		case <-halt:
 			return grid
@@ -103,122 +100,100 @@ func emulateEmergencyHullPaintingRobot(program []int64, initialPanel int64) map[
 }
 
 func emulate(program []int64, input <-chan int64, output chan<- int64, halt chan<- bool) {
-	// Copy the program into memory, so that we do not modify the original.
-	memory := make([]int64, len(program))
+	// We will get pointers as for write operators we might get relative mode
+	// so z=memory(ip+3) is not correct anymore
+	memory := make([]int64, 3000)
 	copy(memory, program)
 
-	getMemoryPointer := func(index int64) *int64 {
-		// Grow memory, if index is out of range.
-		for int64(len(memory)) <= index {
-			memory = append(memory, 0)
-		}
-		return &memory[index]
-	}
-
 	var ip, relativeBase int64
+
 	for {
 		instruction := memory[ip]
+		a := instruction / 10000
+		b := (instruction - a*10000) / 1000
+		c := (instruction - a*10000 - b*1000) / 100
 		opcode := instruction % 100
 
-		getParameter := func(offset int64) *int64 {
-			parameter := memory[ip+offset]
-			mode := instruction / pow(10, offset+1) % 10
-			switch mode {
-			case 0: // position mode
-				return getMemoryPointer(parameter)
-			case 1: // immediate mode
-				return &parameter
-			case 2: // relative mode
-				return getMemoryPointer(relativeBase + parameter)
-			default:
-				panic(fmt.Sprintf("fault: invalid parameter mode: ip=%d instruction=%d offset=%d mode=%d", ip, instruction, offset, mode))
-			}
-		}
-
 		switch opcode {
-
 		case 1: // ADD
-			a, b, c := getParameter(1), getParameter(2), getParameter(3)
-			*c = *a + *b
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			z := fetchPointerToMemory(a, &memory, ip+3, relativeBase)
+			*z = *x + *y
 			ip += 4
 
 		case 2: // MULTIPLY
-			a, b, c := getParameter(1), getParameter(2), getParameter(3)
-			*c = *a * *b
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			z := fetchPointerToMemory(a, &memory, ip+3, relativeBase)
+			*z = *x * *y
 			ip += 4
 
 		case 3: // INPUT
-			a := getParameter(1)
-			*a = <-input
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			*x = <- input 
 			ip += 2
 
 		case 4: // OUTPUT
-			a := getParameter(1)
-			output <- *a
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			output <- *x
 			ip += 2
 
 		case 5: // JUMP IF TRUE
-			a, b := getParameter(1), getParameter(2)
-			if *a != 0 {
-				ip = *b
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			if *x != 0 {
+				ip = *y
 			} else {
 				ip += 3
 			}
 
 		case 6: // JUMP IF FALSE
-			a, b := getParameter(1), getParameter(2)
-			if *a == 0 {
-				ip = *b
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			if *x == 0 {
+				ip = *y
 			} else {
 				ip += 3
 			}
 
 		case 7: // LESS THAN
-			a, b, c := getParameter(1), getParameter(2), getParameter(3)
-			if *a < *b {
-				*c = 1
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			z := fetchPointerToMemory(a, &memory, ip+3, relativeBase)
+
+			if *x < *y {
+				*z = 1
 			} else {
-				*c = 0
+				*z = 0
 			}
+
 			ip += 4
 
 		case 8: // EQUAL
-			a, b, c := getParameter(1), getParameter(2), getParameter(3)
-			if *a == *b {
-				*c = 1
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			y := fetchPointerToMemory(b, &memory, ip+2, relativeBase)
+			z := fetchPointerToMemory(a, &memory, ip+3, relativeBase)
+			if *x == *y {
+				*z = 1
 			} else {
-				*c = 0
+				*z = 0
 			}
+
 			ip += 4
 
-		case 9: // RELATIVE BASE OFFSET
-			a := getParameter(1)
-			relativeBase += *a
+		case 9: // ADJUST RELATIVE BASE
+			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
+			relativeBase += *x
 			ip += 2
 
 		case 99: // HALT
 			halt <- true
 			return
-
 		default:
-			panic(fmt.Sprintf("fault: invalid opcode: ip=%d instruction=%d opcode=%d", ip, instruction, opcode))
+			panic(fmt.Sprintf("error: invalid opcode: ip=%d, instruction=%d, opcode=%d", ip, instruction, opcode))
 		}
 	}
-}
-
-// Integer power: compute a**b using binary powering algorithm
-// See Donald Knuth, The Art of Computer Programming, Volume 2, Section 4.6.3
-// Source: https://groups.google.com/d/msg/golang-nuts/PnLnr4bc9Wo/z9ZGv2DYxXoJ
-func pow(a, b int64) int64 {
-	var p int64 = 1
-	for b > 0 {
-		if b&1 != 0 {
-			p *= a
-		}
-		b >>= 1
-		a *= a
-	}
-	return p
 }
 
 func toInt64(s string) int64 {
@@ -228,27 +203,39 @@ func toInt64(s string) int64 {
 }
 
 type Vector2 struct {
-	x, y int
+	X, Y int
 }
 
-func (v Vector2) Plus(other Vector2) Vector2 {
+// Sub returns the standard vector difference of v and ov (other vector).
+func (v Vector2) Sub(ov Vector2) Vector2 {
 	return Vector2{
-		x: v.x + other.x,
-		y: v.y + other.y,
+		v.X - ov.X,
+		v.Y - ov.Y,
 	}
 }
 
-func (v Vector2) Min(other Vector2) Vector2 {
+// Sub returns the standard vector sum of v and ov (other vector).
+func (v Vector2) Add(ov Vector2) Vector2 {
 	return Vector2{
-		x: min(v.x, other.x),
-		y: min(v.y, other.y),
+		v.X + ov.X,
+		v.Y + ov.Y,
 	}
 }
 
-func (v Vector2) Max(other Vector2) Vector2 {
+// Min returns a Vector2 with the minimum coordiates of v and ov (other vector).
+func (v Vector2) Min(ov Vector2) Vector2 {
 	return Vector2{
-		x: max(v.x, other.x),
-		y: max(v.y, other.y),
+		min(v.X, ov.X),
+		min(v.Y, ov.Y),
+	}
+}
+
+
+// Max returns a Vector2 with the maximum coordiates of v and ov (other vector).
+func (v Vector2) Max(ov Vector2) Vector2 {
+	return Vector2{
+		max(v.X, ov.X),
+		max(v.Y, ov.Y),
 	}
 }
 
@@ -276,4 +263,20 @@ func max(x, y int) int {
 		return y
 	}
 	return x
+}
+
+func fetchPointerToMemory(mode int64, memory *[]int64, position int64, relativeBase int64) *int64 {
+
+	switch mode {
+	case 0:
+		index := (*memory)[position]
+		return &(*memory)[index]
+	case 1:
+		return &(*memory)[position]
+	case 2:
+		index := (*memory)[position] + relativeBase
+		return &(*memory)[index]
+	default:
+		panic("error in mode")
+	}
 }
