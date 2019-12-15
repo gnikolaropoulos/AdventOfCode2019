@@ -15,7 +15,6 @@ func main() {
 		program = append(program, toInt64(value))
 	}
 
-	
 	fmt.Println("--- Part One ---")
 	fmt.Println(len(emulateEmergencyHullPaintingRobot(program, 0)))
 
@@ -131,7 +130,7 @@ func emulate(program []int64, input <-chan int64, output chan<- int64, halt chan
 
 		case 3: // INPUT
 			x := fetchPointerToMemory(c, &memory, ip+1, relativeBase)
-			*x = <- input 
+			*x = <-input
 			ip += 2
 
 		case 4: // OUTPUT
@@ -230,7 +229,6 @@ func (v Vector2) Min(ov Vector2) Vector2 {
 	}
 }
 
-
 // Max returns a Vector2 with the maximum coordiates of v and ov (other vector).
 func (v Vector2) Max(ov Vector2) Vector2 {
 	return Vector2{
@@ -255,6 +253,7 @@ func min(x, y int) int {
 	if y < x {
 		return y
 	}
+
 	return x
 }
 
@@ -262,6 +261,7 @@ func max(x, y int) int {
 	if y > x {
 		return y
 	}
+
 	return x
 }
 
