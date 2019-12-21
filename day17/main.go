@@ -30,30 +30,27 @@ func main() {
 	var grid []string
 	var width, height int
 
-	// Run the program and extract the camera image into grid.
-	{
-		input := make(chan int64)
-		output := make(chan int64)
-		halt := make(chan bool)
+	input := make(chan int64)
+	output := make(chan int64)
+	halt := make(chan bool)
 
-		go emulate(program, input, output, halt)
+	go emulate(program, input, output, halt)
 
-		var builder strings.Builder
+	var builder strings.Builder
 
-	loop:
-		for {
-			select {
-			case char := <-output:
-				builder.WriteRune(rune(char))
+loop:
+	for {
+		select {
+		case char := <-output:
+			builder.WriteRune(rune(char))
 
-			case <-halt:
-				break loop
-			}
+		case <-halt:
+			break loop
 		}
-
-		grid = strings.Split(strings.TrimSpace(builder.String()), "\n")
-		width, height = len(grid[0]), len(grid)
 	}
+
+	grid = strings.Split(strings.TrimSpace(builder.String()), "\n")
+	width, height = len(grid[0]), len(grid)
 
 	fmt.Println("--- Part One ---")
 	sumOfAlignmentParameters := 0
@@ -126,9 +123,9 @@ func main() {
 		panic("no solution found")
 	}
 
-	input := make(chan int64, 100)
-	output := make(chan int64)
-	halt := make(chan bool)
+	input = make(chan int64, 100)
+	output = make(chan int64)
+	halt = make(chan bool)
 
 	go emulate(program, input, output, halt)
 
