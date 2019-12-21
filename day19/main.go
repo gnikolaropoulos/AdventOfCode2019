@@ -30,7 +30,6 @@ func main() {
 	fmt.Println(count)
 
 	fmt.Println("--- Part Two ---")
-
 	startX, startY := 0, 0
 	for {
 		if !probe(startX, startY) {
