@@ -1,192 +1,3 @@
-// package main
-
-// // package main
-
-// import (
-// 	"fmt"
-// 	"hash/fnv"
-// 	"io/ioutil"
-// 	"math"
-// 	"strings"
-// 	"unicode"
-// )
-
-// // Point ...
-// type Point struct {
-// 	row, col int
-// }
-
-// // Key ...
-// type Key struct {
-// 	Point
-// 	steps int
-// }
-
-// var initGrid [][]rune
-// var startingPos Point
-
-// func main() {
-// 	startingPos = readInput("input.txt")
-
-// 	fmt.Println(shortestPath(initGrid, startingPos, make(map[int64]int)))
-// }
-
-// func shortestPath(grid [][]rune, pos Point, memo map[int64]int) int {
-// 	keys := findReachableKeys(grid, pos)
-// 	stateHash := serializeState(grid)
-// 	if _, ok := memo[stateHash]; ok {
-// 		return memo[stateHash]
-// 	}
-
-// 	if len(keys) == 0 {
-// 		return 0
-// 	}
-
-// 	minPath := math.MaxInt32
-// 	cnt := 0
-// 	for _, key := range keys {
-// 		if pos == startingPos {
-// 			fmt.Println("STEP:", cnt)
-// 		}
-
-// 		g, p := removeKey(grid, pos, key)
-// 		minPath = intMin(minPath, key.steps+shortestPath(g, p, memo))
-
-// 		cnt++
-// 	}
-
-// 	memo[stateHash] = minPath
-
-// 	return minPath
-// }
-
-// func findReachableKeys(grid [][]rune, pos Point) []Key {
-// 	return bfs(grid, pos)
-// }
-
-// func bfs(grid [][]rune, pos Point) []Key {
-// 	type Step struct {
-// 		Point
-// 		steps int
-// 	}
-
-// 	visited := make([][]bool, len(grid))
-// 	for row := range grid {
-// 		visited[row] = make([]bool, len(grid[row]))
-// 	}
-
-// 	queue := []Step{}
-// 	queue = append(queue, Step{pos, 0})
-
-// 	keys := []Key{}
-// 	for len(queue) > 0 {
-// 		step := queue[0]
-// 		queue = queue[1:]
-
-// 		p := step.Point
-// 		if p.row < 0 || p.row >= len(grid) || p.col < 0 || p.col >= len(grid[p.row]) {
-// 			continue
-// 		} else if grid[p.row][p.col] == '#' || unicode.IsUpper(grid[p.row][p.col]) {
-// 			continue
-// 		} else if visited[p.row][p.col] {
-// 			continue
-// 		}
-
-// 		if unicode.IsLower(grid[p.row][p.col]) {
-// 			keys = append(keys, Key{p, step.steps})
-// 		}
-
-// 		visited[p.row][p.col] = true
-// 		queue = append(queue, Step{Point{p.row - 1, p.col}, step.steps + 1})
-// 		queue = append(queue, Step{Point{p.row, p.col + 1}, step.steps + 1})
-// 		queue = append(queue, Step{Point{p.row + 1, p.col}, step.steps + 1})
-// 		queue = append(queue, Step{Point{p.row, p.col - 1}, step.steps + 1})
-
-// 		// diagonals
-// 		queue = append(queue, Step{Point{p.row - 1, p.col - 1}, step.steps + 1})
-// 		queue = append(queue, Step{Point{p.row - 1, p.col + 1}, step.steps + 1})
-// 		queue = append(queue, Step{Point{p.row + 1, p.col - 1}, step.steps + 1})
-// 		queue = append(queue, Step{Point{p.row + 1, p.col + 1}, step.steps + 1})
-// 	}
-
-// 	return keys
-// }
-
-// func removeKey(grid [][]rune, pos Point, key Key) ([][]rune, Point) {
-// 	newGrid := make([][]rune, len(grid))
-// 	for row := range grid {
-// 		newGrid[row] = make([]rune, len(grid[row]))
-// 		copy(newGrid[row], grid[row])
-// 	}
-
-// 	keyLetter := grid[key.row][key.col]
-// 	for row := range grid {
-// 		for col := range grid[row] {
-// 			if newGrid[row][col] == unicode.ToUpper(keyLetter) {
-// 				newGrid[row][col] = '.'
-// 			}
-// 		}
-// 	}
-
-// 	newGrid[pos.row][pos.col] = '.'
-// 	newGrid[key.row][key.col] = '@'
-
-// 	return newGrid, Point{key.row, key.col}
-// }
-
-// func serializeState(grid [][]rune) int64 {
-// 	h := fnv.New32a()
-// 	for row := range grid {
-// 		for col := range grid[row] {
-// 			h.Write([]byte{byte(grid[row][col])})
-// 		}
-// 	}
-
-// 	return int64(h.Sum32())
-// }
-
-// func intMin(a, b int) int {
-// 	if a < b {
-// 		return a
-// 	}
-
-// 	return b
-// }
-
-// func readInput(filename string) Point {
-// 	bs, err := ioutil.ReadFile(filename)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	lines := strings.Split(string(bs), "\n")
-// 	lines = lines[:len(lines)-1]
-
-// 	var startingPos Point
-// 	initGrid = make([][]rune, len(lines))
-// 	for row := range lines {
-// 		initGrid[row] = make([]rune, len(lines[row]))
-// 		for col := range lines[row] {
-// 			initGrid[row][col] = rune(lines[row][col])
-// 			if initGrid[row][col] == '@' {
-// 				startingPos = Point{row, col}
-// 			}
-// 		}
-// 	}
-
-// 	return startingPos
-// }
-
-// func printGrid(grid [][]rune) {
-// 	for row := range grid {
-// 		for col := range grid[row] {
-// 			fmt.Print(string(grid[row][col]))
-// 		}
-
-// 		fmt.Println()
-// 	}
-// }
-
 package main
 
 import (
@@ -196,9 +7,18 @@ import (
 	"os"
 )
 
+var (
+	Up    = Vector2{0, -1}
+	Down  = Vector2{0, 1}
+	Left  = Vector2{-1, 0}
+	Right = Vector2{1, 0}
+)
+
+var directions = []Vector2{Up, Down, Left, Right}
+
 func main() {
-	// fmt.Println("--- Part One ---")
-	// findMinimumSteps()
+	fmt.Println("--- Part One ---")
+	findMinimumSteps()
 
 	fmt.Println("--- Part Two ---")
 	findMinimumStepsForMultipleVaults()
@@ -207,181 +27,199 @@ func main() {
 func findMinimumSteps() {
 	lines := readLines("input.txt")
 
-	var startPos [2]int
-	var doorPos [26][2]int
-	var keyPos [26][2]int
+	var startingPosition Vector2
+	var keyPositions [26]Vector2
 
 	for i, line := range lines {
 		for j := 0; j < len(line); j++ {
 			if line[j] == '@' {
-				startPos = [2]int{i, j}
+				startingPosition = Vector2{i, j}
 			} else if line[j] >= 'a' && line[j] <= 'z' {
-				keyPos[line[j]-'a'] = [2]int{i, j}
-			} else if line[j] >= 'A' && line[j] <= 'Z' {
-				doorPos[line[j]-'A'] = [2]int{i, j}
+				keyPositions[line[j]-'a'] = Vector2{i, j}
 			}
 		}
 	}
 
-	pmemo := map[[4]int]int{}
+	pathsMemory := map[KeyInfo]int{}
 
-	pathFind := func(pos [2]int, keys int, key int) int {
-		pkey := [4]int{pos[0], pos[1], keys, key}
-		if v, ok := pmemo[pkey]; ok {
-			return v
+	pathFind := func(keyInfo KeyInfo) int {
+		if distance, ok := pathsMemory[keyInfo]; ok {
+			return distance
 		}
 
-		work := [][3]int{{pos[0], pos[1], 0}}
-		seen := map[[2]int]bool{}
-		target := keyPos[key]
-		dirs := [][2]int{{1, 0}, {0, 1}, {-1, 0}, {0, -1}}
-		for len(work) > 0 {
-			w := work[0]
-			work = work[1:]
-			k := [2]int{w[0], w[1]}
-			if k == target {
-				pmemo[pkey] = w[2]
-				return w[2]
+		workItems := []WorkItem{WorkItem{keyInfo.Position, 0}}
+		visited := map[Vector2]bool{}
+		target := keyPositions[keyInfo.Key]
+
+		for len(workItems) > 0 {
+			topItem := workItems[0]
+			workItems = workItems[1:]
+			currentPosition := topItem.Position
+			if currentPosition == target {
+				pathsMemory[keyInfo] = topItem.Distance
+				return topItem.Distance
 			}
-			if seen[k] {
+
+			if visited[currentPosition] {
 				continue
 			}
-			seen[k] = true
-			for _, dir := range dirs {
-				w2 := [3]int{w[0] + dir[0], w[1] + dir[1], w[2] + 1}
-				if w2[0] < 0 || w2[0] >= len(lines) || w2[1] < 0 || w2[1] >= len(lines[0]) {
+
+			visited[currentPosition] = true
+			for _, dir := range directions {
+				nextItem := WorkItem{topItem.Position.Add(dir), topItem.Distance + 1}
+				if isOutOfBounds(nextItem.Position, lines) {
 					continue
 				}
-				c := lines[w2[0]][w2[1]]
-				if c == '#' {
+
+				char := lines[nextItem.Position.X][nextItem.Position.Y]
+				if char == '#' {
 					continue
 				}
-				b := 1 << uint(c-'a')
-				if c >= 'a' && c <= 'z' && int(c-'a') != key && (keys&b) == 0 {
+
+				// collect the key
+				keyBit := 1 << uint(char-'a')
+				if isKey(char) && int(char-'a') != keyInfo.Key && (keyInfo.KeysBitcode&keyBit) == 0 {
 					continue
 				}
-				b = 1 << uint(c-'A')
-				if c >= 'A' && c <= 'Z' && (keys&b) == 0 {
+
+				// open the door
+				doorBit := 1 << uint(char-'A')
+				if isDoor(char) && (keyInfo.KeysBitcode&doorBit) == 0 {
 					continue
 				}
-				work = append(work, w2)
+
+				workItems = append(workItems, nextItem)
 			}
 		}
-		pmemo[pkey] = -1
+
+		pathsMemory[keyInfo] = -1
 		return -1
 	}
 
 	min := math.MaxInt64
 
-	mins := map[[3]int]int{}
+	mins := map[KeyInfo]int{}
 
-	var search func([2]int, int, int)
-	search = func(pos [2]int, keys int, plen int) {
-		if keys == (1<<26)-1 {
-			if plen < min {
-				min = plen
+	var search func(Vector2, int, int)
+	search = func(position Vector2, keysBitcode int, pathLength int) {
+		if keysBitcode == (1<<26)-1 {
+			if pathLength < min {
+				min = pathLength
 			}
-			return
-		}
-		if plen >= min {
+
 			return
 		}
 
-		key := [3]int{pos[0], pos[1], keys}
-		if v, ok := mins[key]; ok && v <= plen {
+		if pathLength >= min {
 			return
 		}
-		mins[key] = plen
+
+		keyInfo := KeyInfo{position, keysBitcode, 0}
+		if v, ok := mins[keyInfo]; ok && v <= pathLength {
+			return
+		}
+
+		mins[keyInfo] = pathLength
 
 		for nextKey := 0; nextKey < 26; nextKey++ {
 			bit := 1 << uint(nextKey)
-			if keys&bit != 0 {
+			if keysBitcode&bit != 0 {
 				continue
 			}
-			aplen := pathFind(pos, keys, nextKey)
-			if aplen == -1 {
+
+			keyInfo.Key = nextKey
+			nextKeyDistance := pathFind(keyInfo)
+			if nextKeyDistance == -1 {
 				continue
 			}
-			search(keyPos[nextKey], keys|bit, plen+aplen)
+
+			search(keyPositions[nextKey], keysBitcode|bit, pathLength+nextKeyDistance)
 		}
 	}
-	search(startPos, 0, 0)
+
+	search(startingPosition, 0, 0)
 	fmt.Println(min)
 }
 
 func findMinimumStepsForMultipleVaults() {
 	lines := readLines("input.txt")
+	lines = updateInput(lines)
 
 	spcount := 0
-	var startPoss [4][2]int
-	var doorPos [26][2]int
-	var keyPos [26][2]int
+	var startingPositions [4]Vector2
+	var keyPositions [26]Vector2
 
 	for i, line := range lines {
 		for j := 0; j < len(line); j++ {
 			if line[j] == '@' {
-				startPoss[spcount] = [2]int{i, j}
+				startingPositions[spcount] = Vector2{i, j}
 				spcount++
 			} else if line[j] >= 'a' && line[j] <= 'z' {
-				keyPos[line[j]-'a'] = [2]int{i, j}
-			} else if line[j] >= 'A' && line[j] <= 'Z' {
-				doorPos[line[j]-'A'] = [2]int{i, j}
+				keyPositions[line[j]-'a'] = Vector2{i, j}
 			}
 		}
 	}
 
-	pmemo := map[[4]int]int{}
+	pathsMemory := map[KeyInfo]int{}
 
-	pathFind := func(pos [2]int, keys int, key int) int {
-		pkey := [4]int{pos[0], pos[1], keys, key}
-		if v, ok := pmemo[pkey]; ok {
-			return v
+	pathFind := func(keyInfo KeyInfo) int {
+		if distance, ok := pathsMemory[keyInfo]; ok {
+			return distance
 		}
 
-		work := [][3]int{{pos[0], pos[1], 0}}
-		seen := map[[2]int]bool{}
-		target := keyPos[key]
-		dirs := [][2]int{{1, 0}, {0, 1}, {-1, 0}, {0, -1}}
-		for len(work) > 0 {
-			w := work[0]
-			work = work[1:]
-			k := [2]int{w[0], w[1]}
-			if k == target {
-				pmemo[pkey] = w[2]
-				return w[2]
+		workItems := []WorkItem{WorkItem{keyInfo.Position, 0}}
+		visited := map[Vector2]bool{}
+		target := keyPositions[keyInfo.Key]
+
+		for len(workItems) > 0 {
+			topItem := workItems[0]
+			workItems = workItems[1:]
+			currentPosition := topItem.Position
+			if currentPosition == target {
+				pathsMemory[keyInfo] = topItem.Distance
+				return topItem.Distance
 			}
-			if seen[k] {
+
+			if visited[currentPosition] {
 				continue
 			}
-			seen[k] = true
-			for _, dir := range dirs {
-				w2 := [3]int{w[0] + dir[0], w[1] + dir[1], w[2] + 1}
-				if w2[0] < 0 || w2[0] >= len(lines) || w2[1] < 0 || w2[1] >= len(lines[0]) {
+
+			visited[currentPosition] = true
+			for _, dir := range directions {
+				nextItem := WorkItem{topItem.Position.Add(dir), topItem.Distance + 1}
+				if isOutOfBounds(nextItem.Position, lines) {
 					continue
 				}
-				c := lines[w2[0]][w2[1]]
-				if c == '#' {
+
+				char := lines[nextItem.Position.X][nextItem.Position.Y]
+				if char == '#' {
 					continue
 				}
-				b := 1 << uint(c-'a')
-				if c >= 'a' && c <= 'z' && int(c-'a') != key && (keys&b) == 0 {
+
+				// collect the key
+				keyBit := 1 << uint(char-'a')
+				if isKey(char) && int(char-'a') != keyInfo.Key && (keyInfo.KeysBitcode&keyBit) == 0 {
 					continue
 				}
-				b = 1 << uint(c-'A')
-				if c >= 'A' && c <= 'Z' && (keys&b) == 0 {
+
+				// open the door
+				doorBit := 1 << uint(char-'A')
+				if isDoor(char) && (keyInfo.KeysBitcode&doorBit) == 0 {
 					continue
 				}
-				work = append(work, w2)
+
+				workItems = append(workItems, nextItem)
 			}
 		}
-		pmemo[pkey] = -1
+
+		pathsMemory[keyInfo] = -1
 		return -1
 	}
 
 	keySegs := [4]int{}
 	for i := 0; i < 26; i++ {
 		for j := 0; j < 4; j++ {
-			if pathFind(startPoss[j], (1<<26)-1, i) != -1 {
+			if pathFind(KeyInfo{startingPositions[j], (1 << 26) - 1, i}) != -1 {
 				keySegs[j] |= (1 << uint(i))
 			}
 		}
@@ -391,45 +229,52 @@ func findMinimumStepsForMultipleVaults() {
 
 	mins := map[[9]int]int{}
 
-	var search func([4][2]int, int, int)
-	search = func(pos [4][2]int, keys int, plen int) {
-		if keys == (1<<26)-1 {
-			if plen < min {
-				min = plen
+	var search func([4]Vector2, int, int)
+	search = func(pos [4]Vector2, keysBitcode int, pathLength int) {
+		if keysBitcode == (1<<26)-1 {
+			if pathLength < min {
+				min = pathLength
 			}
-			return
-		}
-		if plen >= min {
+
 			return
 		}
 
-		key := [9]int{pos[0][0], pos[0][1], pos[1][0], pos[1][1], pos[2][0], pos[2][1], pos[3][0], pos[3][1], keys}
-		if v, ok := mins[key]; ok && v <= plen {
+		if pathLength >= min {
 			return
 		}
-		mins[key] = plen
+
+		key := [9]int{pos[0].X, pos[0].Y, pos[1].X, pos[1].Y, pos[2].X, pos[2].Y, pos[3].X, pos[3].Y, keysBitcode}
+		if v, ok := mins[key]; ok && v <= pathLength {
+			return
+		}
+
+		mins[key] = pathLength
 
 		for nextKey := 0; nextKey < 26; nextKey++ {
 			bit := 1 << uint(nextKey)
-			if keys&bit != 0 {
+			if keysBitcode&bit != 0 {
 				continue
 			}
+
 			var bi int
 			for i := 0; i < 4; i++ {
 				if keySegs[i]&bit != 0 {
 					bi = i
 				}
 			}
+
 			npos := pos
-			npos[bi] = keyPos[nextKey]
-			aplen := pathFind(pos[bi], keys, nextKey)
-			if aplen == -1 {
+			npos[bi] = keyPositions[nextKey]
+			nextKeyDistance := pathFind(KeyInfo{pos[bi], keysBitcode, nextKey})
+			if nextKeyDistance == -1 {
 				continue
 			}
-			search(npos, keys|bit, plen+aplen)
+
+			search(npos, keysBitcode|bit, pathLength+nextKeyDistance)
 		}
 	}
-	search(startPoss, 0, 0)
+
+	search(startingPositions, 0, 0)
 	fmt.Println(min)
 }
 
@@ -451,4 +296,67 @@ func check(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func updateInput(lines []string) []string {
+	grid := make([][]byte, len(lines))
+	for y, line := range lines {
+		grid[y] = []byte(line)
+	}
+
+	// Find the original entrance.
+	var cx, cy int
+	for y, line := range lines {
+		for x, char := range line {
+			if char == '@' {
+				cx, cy = x, y
+			}
+		}
+	}
+
+	grid[cy-1][cx-1], grid[cy-1][cx], grid[cy-1][cx+1] = '@', '#', '@'
+	grid[cy+0][cx-1], grid[cy+0][cx], grid[cy+0][cx+1] = '#', '#', '#'
+	grid[cy+1][cx-1], grid[cy+1][cx], grid[cy+1][cx+1] = '@', '#', '@'
+
+	for y, line := range grid {
+		lines[y] = string(line)
+	}
+
+	return lines
+}
+
+func isOutOfBounds(position Vector2, lines []string) bool {
+	return position.X < 0 || position.Y >= len(lines) ||
+		position.Y < 0 || position.Y >= len(lines[0])
+}
+
+func isKey(char byte) bool {
+	return char >= 'a' && char <= 'z'
+}
+
+func isDoor(char byte) bool {
+	return char >= 'A' && char <= 'Z'
+}
+
+type Vector2 struct {
+	X, Y int
+}
+
+// Sub returns the standard vector sum of v and ov (other vector).
+func (v Vector2) Add(ov Vector2) Vector2 {
+	return Vector2{
+		v.X + ov.X,
+		v.Y + ov.Y,
+	}
+}
+
+type WorkItem struct {
+	Position Vector2
+	Distance int
+}
+
+type KeyInfo struct {
+	Position    Vector2
+	KeysBitcode int
+	Key         int
 }
