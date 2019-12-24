@@ -213,7 +213,7 @@ func (v Vector2) Sub(ov Vector2) Vector2 {
 	}
 }
 
-// Sub returns the standard vector sum of v and ov (other vector).
+// Add returns the standard vector sum of v and ov (other vector).
 func (v Vector2) Add(ov Vector2) Vector2 {
 	return Vector2{
 		v.X + ov.X,
