@@ -60,6 +60,7 @@ func main() {
 			}
 		}
 
+		printGrid(nextGrid)
 		grid = nextGrid
 	}
 
@@ -104,4 +105,20 @@ func (v Vector2) Add(ov Vector2) Vector2 {
 		v.X + ov.X,
 		v.Y + ov.Y,
 	}
+}
+
+func printGrid(grid [5][5]bool) {
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 5; j++ {
+			if grid[i][j] {
+				fmt.Print("#")
+			} else {
+				fmt.Print(".")
+			}
+		}
+
+		fmt.Println()
+	}
+
+	fmt.Println()
 }
