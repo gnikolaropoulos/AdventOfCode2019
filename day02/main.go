@@ -20,6 +20,7 @@ func main() {
 	if fault {
 		panic("unexpected fault")
 	}
+	
 	fmt.Println(result)
 
 	fmt.Println("--- Part Two ---")

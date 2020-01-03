@@ -3,12 +3,15 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
+	"sort"
 )
 
 func main() {
 	lines := readLines("input.txt")
 	asteroids := make([]Vector2, 0)
+
 	for y, line := range lines {
 		for x, char := range line {
 			if char == '#' {
@@ -31,32 +34,34 @@ func main() {
 	fmt.Println(mostVisibleAsteroids)
 	fmt.Println(bestAsteroidLocation)
 
-	// var vaporizationOrder []Vector2
-	// for len(asteroids) > 1 {
-	// 	// Find the asteroids that will be vaporized during this rotation of the laser.
-	// 	list := findVisibleAsteroids(bestAsteroidLocation, asteroids)
+	var vaporizationOrder []Vector2
+	for len(asteroids) > 1 {
+		list := findAsteroidsInSight(bestAsteroidLocation, asteroids)
 
-	// 	// Sort them by angle to find the exact order they will be vaproized in.
-	// 	calculateAngle := func(asteroid Vector2) float64 {
-	// 		dist := asteroid.Minus(bestAsteroidLocation)
-	// 		return 2.0*math.Pi - (math.Atan2(float64(dist.X), float64(dist.Y)) + math.Pi)
-	// 	}
-	// 	sort.Slice(list, func(i, j int) bool {
-	// 		return calculateAngle(list[i]) < calculateAngle(list[j])
-	// 	})
+		calculateAngle := func(asteroid Vector2) float64 {
+			dist := asteroid.Sub(bestAsteroidLocation)
+			return 2.0*math.Pi - (math.Atan2(float64(dist.X), float64(dist.Y)) + math.Pi)
+		}
 
-	// 	// Add them to the global list and remove them from the asteroid field.
-	// 	vaporizationOrder = append(vaporizationOrder, list...)
-	// 	for _, asteroid := range list {
-	// 		delete(asteroids, asteroid)
-	// 	}
-	// }
+		sort.Slice(list, func(i, j int) bool {
+			return calculateAngle(list[i]) < calculateAngle(list[j])
+		})
 
-	// {
-	// 	fmt.Println("--- Part Two ---")
-	// 	target := vaporizationOrder[199]
-	// 	fmt.Println(target.X*100 + target.Y)
-	// }
+		vaporizationOrder = append(vaporizationOrder, list...)
+		for _, asteroid := range list {
+			for i, ast := range asteroids {
+				if asteroid == ast {
+					asteroids = append(asteroids[:i], asteroids[i+1:]...)
+					break
+				}
+			}
+
+		}
+	}
+
+	fmt.Println("--- Part Two ---")
+	target := vaporizationOrder[199]
+	fmt.Println(target.X*100 + target.Y)
 }
 
 func findAsteroidsInSight(location Vector2, asteroids []Vector2) []Vector2 {

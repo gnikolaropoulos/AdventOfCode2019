@@ -61,6 +61,7 @@ loop:
 			}
 		}
 	}
+	
 	fmt.Println(sumOfAlignmentParameters)
 
 	fmt.Println("--- Part Two ---")

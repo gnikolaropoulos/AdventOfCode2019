@@ -41,52 +41,50 @@ func main() {
 		for _, input := range strings.Split(inputs, ", ") {
 			reaction.Inputs = append(reaction.Inputs, parsePart(input))
 		}
+
 		reaction.Output = parsePart(output)
 		reactions[reaction.Output.Name] = reaction
 	}
 
 	var oreRequiredForOneFuel int
 
-	{
-		fmt.Println("--- Part One ---")
-		required := map[string]int{"FUEL": 1}
-		reduce(required, reactions)
-		oreRequiredForOneFuel = required["ORE"]
-		fmt.Println(oreRequiredForOneFuel)
-	}
+	fmt.Println("--- Part One ---")
+	required := map[string]int{"FUEL": 1}
+	reduce(required, reactions)
+	oreRequiredForOneFuel = required["ORE"]
+	fmt.Println(oreRequiredForOneFuel)
 
-	{
-		fmt.Println("--- Part Two ---")
-		availableOre := 1_000_000_000_000
-		fuel, step := 0, availableOre/oreRequiredForOneFuel
-		required := make(map[string]int)
-		for {
-			test := make(map[string]int) // make a copy of required
-			for name, amount := range required {
-				test[name] = amount
-			}
-
-			test["FUEL"] += step
-			reduce(test, reactions)
-
-			if test["ORE"] <= availableOre {
-				// We have made an additional step amount of fuel.
-				fuel += step
-				required = test
-				continue
-			}
-
-			if step > 1 {
-				// Step size was too big.
-				step /= 2
-				continue
-			}
-
-			// We cannot make one more fuel.
-			break
+	fmt.Println("--- Part Two ---")
+	availableOre := 1_000_000_000_000
+	fuel, step := 0, availableOre/oreRequiredForOneFuel
+	required = make(map[string]int)
+	for {
+		test := make(map[string]int) // make a copy of required
+		for name, amount := range required {
+			test[name] = amount
 		}
-		fmt.Println(fuel)
+
+		test["FUEL"] += step
+		reduce(test, reactions)
+
+		if test["ORE"] <= availableOre {
+			// We have made an additional step amount of fuel.
+			fuel += step
+			required = test
+			continue
+		}
+
+		if step > 1 {
+			// Step size was too big.
+			step /= 2
+			continue
+		}
+
+		// We cannot make one more fuel.
+		break
 	}
+
+	fmt.Println(fuel)
 }
 
 func reduce(required map[string]int, reactions map[string]Reaction) {
@@ -123,6 +121,7 @@ func readLines(filename string) []string {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
+	
 	return lines
 }
 

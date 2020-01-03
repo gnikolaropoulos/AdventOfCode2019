@@ -29,15 +29,11 @@ func main() {
 		program = append(program, toInt64(value))
 	}
 
-	{
-		fmt.Println("--- Part One ---")
-		fmt.Println(countBlocks(program))
-	}
+	fmt.Println("--- Part One ---")
+	fmt.Println(countBlocks(program))
 
-	{
-		fmt.Println("--- Part Two ---")
-		fmt.Println(emulateArcadeCabinet(program))
-	}
+	fmt.Println("--- Part Two ---")
+	fmt.Println(emulateArcadeCabinet(program))
 }
 
 func countBlocks(program []int64) (count int) {

@@ -15,15 +15,12 @@ func main() {
 		program = append(program, toInt(value))
 	}
 
-	{
-		fmt.Println("--- Part One ---")
-		fmt.Println(findBestSignal(program, []int{0, 1, 2, 3, 4}))
-	}
+	fmt.Println("--- Part One ---")
+	fmt.Println(findBestSignal(program, []int{0, 1, 2, 3, 4}))
 
-	{
-		fmt.Println("--- Part Two ---")
-		fmt.Println(findBestSignal(program, []int{5, 6, 7, 8, 9}))
-	}
+	fmt.Println("--- Part Two ---")
+	fmt.Println(findBestSignal(program, []int{5, 6, 7, 8, 9}))
+
 }
 
 func findBestSignal(program []int, phaseValues []int) int {

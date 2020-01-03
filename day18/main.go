@@ -289,6 +289,7 @@ func readLines(filename string) []string {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
+	
 	return lines
 }
 
