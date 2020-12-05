@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math/big"
 	"os"
 	"strconv"
 	"strings"
@@ -19,6 +20,11 @@ const (
 type Shuffle struct {
 	shuffleType ShuffleType
 	arg         int
+}
+
+type BigShuffle struct {
+	shuffleType ShuffleType
+	arg         int64
 }
 
 func main() {
@@ -46,6 +52,48 @@ func main() {
 			break
 		}
 	}
+
+	fmt.Println("--- Part Two ---")
+
+	const bigCount = 119315717514047
+	const iterations = 101741582076661
+
+	var bigShuffles []BigShuffle
+	newShuffles := readBigShuffles(lines)
+	factor := compact(newShuffles, bigCount)
+
+	for iterationsLeft := bigCount - iterations - 1; iterationsLeft != 0; iterationsLeft /= 2 {
+		if iterationsLeft%2 == 1 {
+			bigShuffles = append(bigShuffles, factor...)
+			bigShuffles = compact(bigShuffles, bigCount)
+		}
+
+		factor = append(factor, factor...)
+		factor = compact(factor, bigCount)
+	}
+
+	pos := big.NewInt(2020)
+	for _, shuffle := range bigShuffles {
+		if shuffle.shuffleType == ShuffleTypeDeal {
+			increment := shuffle.arg
+			pos.Mul(pos, big.NewInt(increment))
+			pos.Mod(pos, big.NewInt(bigCount))
+
+		} else if shuffle.shuffleType == ShuffleTypeStack {
+			pos.Sub(big.NewInt(bigCount-1), pos)
+
+		} else if shuffle.shuffleType == ShuffleTypeCut {
+			cut := shuffle.arg
+
+			if pos.Int64() < cut {
+				pos.Add(pos, big.NewInt(bigCount-cut))
+			} else {
+				pos.Sub(pos, big.NewInt(cut))
+			}
+		}
+	}
+
+	fmt.Println(pos.Int64())
 
 }
 
@@ -98,6 +146,7 @@ func readShuffles(lines []string) []Shuffle {
 			}
 
 			result = append(result, Shuffle{ShuffleTypeDeal, incr})
+
 		case "cut":
 			cut, err := strconv.Atoi(tokens[len(tokens)-1])
 			if err != nil {
@@ -105,14 +154,141 @@ func readShuffles(lines []string) []Shuffle {
 			}
 
 			result = append(result, Shuffle{ShuffleTypeCut, cut})
+
 		case "deal into new":
 			result = append(result, Shuffle{ShuffleTypeStack, 0})
+
 		default:
 			panic("unknown command")
 		}
 	}
 
 	return result
+}
+
+func readBigShuffles(lines []string) []BigShuffle {
+	result := make([]BigShuffle, len(lines))
+	for _, line := range lines {
+		tokens := strings.Split(line, " ")
+		shuffle := strings.Join(tokens[:len(tokens)-1], " ")
+		switch shuffle {
+		case "deal with increment":
+			incr, err := strconv.Atoi(tokens[len(tokens)-1])
+			if err != nil {
+				panic(err)
+			}
+
+			result = append(result, BigShuffle{ShuffleTypeDeal, int64(incr)})
+
+		case "cut":
+			cut, err := strconv.Atoi(tokens[len(tokens)-1])
+			if err != nil {
+				panic(err)
+			}
+
+			result = append(result, BigShuffle{ShuffleTypeCut, int64(cut)})
+
+		case "deal into new":
+			result = append(result, BigShuffle{ShuffleTypeStack, 0})
+
+		default:
+			panic("unknown command")
+		}
+	}
+
+	return result
+}
+
+func compact(input []BigShuffle, count int64) []BigShuffle {
+	{
+		compacted := make([]BigShuffle, 0, len(input))
+		reverse := false
+		for _, shuffle := range input {
+			if shuffle.shuffleType == ShuffleTypeStack {
+				reverse = !reverse
+				continue
+			}
+			if !reverse {
+				compacted = append(compacted, shuffle)
+				continue
+			}
+			switch shuffle.shuffleType {
+			case ShuffleTypeDeal:
+				compacted = append(compacted, shuffle)
+				compacted = append(compacted, BigShuffle{ShuffleTypeCut, count + 1 - shuffle.arg})
+
+			case ShuffleTypeCut:
+				cut := (shuffle.arg + count) % count
+				cut = count - cut
+				compacted = append(compacted, BigShuffle{ShuffleTypeCut, cut})
+			}
+		}
+
+		if reverse {
+			compacted = append(compacted, BigShuffle{ShuffleTypeStack, 0})
+		}
+
+		input = compacted
+	}
+
+	{
+		compacted := make([]BigShuffle, 0, len(input))
+		cut := big.NewInt(0)
+		for _, shuffle := range input {
+			switch shuffle.shuffleType {
+			case ShuffleTypeStack:
+				if value := cut.Int64(); value != 0 {
+					compacted = append(compacted, BigShuffle{ShuffleTypeCut, value})
+					cut.SetInt64(0)
+				}
+
+				compacted = append(compacted, shuffle)
+
+			case ShuffleTypeDeal:
+				compacted = append(compacted, shuffle)
+				cut.Mul(cut, big.NewInt(shuffle.arg))
+				cut.Mod(cut, big.NewInt(count))
+
+			case ShuffleTypeCut:
+				cut.Add(cut, big.NewInt(shuffle.arg))
+				cut.Mod(cut, big.NewInt(count))
+			}
+		}
+
+		if value := cut.Int64(); value != 0 {
+			compacted = append(compacted, BigShuffle{ShuffleTypeCut, value})
+			cut.SetInt64(0)
+		}
+
+		input = compacted
+	}
+
+	{
+		compacted := make([]BigShuffle, 0, len(input))
+		increment := big.NewInt(1)
+		for _, shuffle := range input {
+			switch shuffle.shuffleType {
+			case ShuffleTypeDeal:
+				increment.Mul(increment, big.NewInt(shuffle.arg))
+				increment.Mod(increment, big.NewInt(count))
+
+			default:
+				if value := increment.Int64(); value != 1 {
+					compacted = append(compacted, BigShuffle{ShuffleTypeDeal, value})
+					increment.SetInt64(1)
+				}
+				compacted = append(compacted, shuffle)
+			}
+		}
+		if value := increment.Int64(); value != 1 {
+			compacted = append(compacted, BigShuffle{ShuffleTypeDeal, value})
+			increment.SetInt64(1)
+		}
+
+		input = compacted
+	}
+
+	return input
 }
 
 func createDeck(count int) []int {
