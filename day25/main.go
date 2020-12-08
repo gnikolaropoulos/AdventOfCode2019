@@ -147,9 +147,8 @@ loop:
 				if match := roomNameRegex.FindStringSubmatch(line); match != nil {
 					name := match[1]
 
-					var description []string
-					for ; i+1 < len(lines) && lines[i+1] != ""; i++ {
-						description = append(description, lines[i+1])
+					if (i+1) < len(lines) && lines[i+1] != "" {
+						i++
 					}
 
 					current = world[name]
